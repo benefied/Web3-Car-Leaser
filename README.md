@@ -1,6 +1,6 @@
 Name: Web3-Car-Leaser
 
-Aim: A decentralised market place for leasing cars where by someone(a car owner approved centralized) can lease his car and it will be set in form of a NFT and people can rent it(NFT transferrable), both sides will approve transfer
+Aim: A decentralised market place for leasing cars where by someone(a car owner) can lease his car and it will be set in form of an NFT and people can rent it(NFT transferrable), approval will be mutual 
 
 
 Objectives Acomplishable by this contract
