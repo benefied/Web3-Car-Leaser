@@ -5,59 +5,80 @@ import "./RentingNftMinter.sol";
 
 contract Register is CarToken{
 
-    struct CarOwner{
+    struct CarLeaser{
         uint256 id;
-        address carOwner;
-        uint256 rentals;
         string message;
+        bool isOwner;
     }
     struct CarMint{
+        string carName;
         address carOwner;
-        uint256 trackerId;
-        string  plateNumber;
+        uint256 price;
+        string details;
         string signature;
+        bool leased;
     }
 
- CarOwner[] public carOwners;
 
-uint256 private counter;
- mapping(uint => bool) public approved;
+    uint256 private counter;
+    uint256 private carIdCounter;
+    bool noMintRequest = true;
+    mapping (address => CarLeaser) public carLeaserAddr;
+    mapping (uint256 => CarMint) internal carMinter;
 
- function requestForRegister(string memory _message) public{
-     carOwners.push(CarOwner({
-         id: counter,
-         carOwner: msg.sender,
-         rentals: counter,
-         message: _message
-     }));
-     approved[counter] = false;
+    modifier onlyCarLeasers(){
+        require(carLeaserAddr[msg.sender].isOwner, "this is only for car leasers");
+        _;
+    }
+
+ function RegisterAsCarLeaser(string memory _message) public{
+     carLeaserAddr[msg.sender].id = counter;
+     carLeaserAddr[msg.sender].message = _message;
+     carLeaserAddr[msg.sender].isOwner = true;
      counter++;
  }
 
+function PutUpForRental(string memory _carName, uint256 _price, string memory _details, string memory _signature) public onlyCarLeasers{
+     uint _id = carIdCounter;
+     uint256 etherAmount =_price * 10**18;
 
-function ApproveRegister(uint _id) public onlyOwner{
-    approved[_id] = true;
+     carMinter[_id].carName = _carName;
+     carMinter[_id].carOwner = msg.sender;
+     carMinter[_id].price = etherAmount;
+     carMinter[_id].details = _details;
+     carMinter[_id].leased = false;
+     carMinter[_id].signature = _signature;
+
+     safeMint(msg.sender);
+     carIdCounter++;
 }
 
-function PutUpForRental(string memory name, string memory details, uint256 price) public payable {
-     
-}
-
-function ApproveRental(uint256 _id) public{
+function Rent(uint256 _carId) public payable{
+    require(msg.value >= carMinter[_carId].price);
+     carMinter[_carId].leased = true;
 
 }
 
-function MintCarToken(uint256 _id) public{
-    
-}
-
-
-
-function Rent(uint _id) public{
+function ApproveRecieve(uint256 _id) public{
 
 }
+
+function TransferToCarOwner() internal{
+
+}
+
+function returnOwnersMessage(address _addr) public view returns(string memory){
+    return carLeaserAddr[_addr].message;
+}
+function isAcarLeaser(address _addr) public view returns(bool){
+    return carLeaserAddr[_addr].isOwner;
+}
+function amountOfCarLeasers() public view returns(uint){
+    return counter;
+}
+
 function ApproveRecievedCar(uint256 _id) external{
-    _transferOwnership(newOwner);
+    //_transferOwnership(newOwner);
 }
 
 
