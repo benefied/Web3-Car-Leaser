@@ -17,6 +17,7 @@ contract Register is CarToken{
         string details;
         string signature;
         bool leased;
+        address rentedTo;
     }
 
 
@@ -40,7 +41,8 @@ contract Register is CarToken{
 
 function PutUpForRental(string memory _carName, uint256 _price, string memory _details, string memory _signature) public onlyCarLeasers{
      uint _id = carIdCounter;
-     uint256 etherAmount =_price * 10**18;
+
+     uint256 etherAmount =_price * 10 ** 18;
 
      carMinter[_id].carName = _carName;
      carMinter[_id].carOwner = msg.sender;
@@ -54,13 +56,13 @@ function PutUpForRental(string memory _carName, uint256 _price, string memory _d
 }
 
 function Rent(uint256 _carId) public payable{
-    require(msg.value >= carMinter[_carId].price);
-     carMinter[_carId].leased = true;
-
+    require(msg.value >= carMinter[_carId].price, "not enough ethers");
+     carMinter[_carId].rentedTo = msg.sender;
 }
 
-function ApproveRecieve(uint256 _id) public{
-
+function ApproveRecieve(uint256 _carId) public{
+    require(carMinter[_carId].rentedTo == msg.sender, "wasnt rented to you");
+    carMinter[_carId].leased = true;
 }
 
 function TransferToCarOwner() internal{
@@ -75,10 +77,6 @@ function isAcarLeaser(address _addr) public view returns(bool){
 }
 function amountOfCarLeasers() public view returns(uint){
     return counter;
-}
-
-function ApproveRecievedCar(uint256 _id) external{
-    //_transferOwnership(newOwner);
 }
 
 

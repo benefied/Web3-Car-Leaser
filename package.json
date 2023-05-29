@@ -1,0 +1,26 @@
+{
+  "name": "web3-car-leaser",
+  "version": "1.0.0",
+  "description": "Name: Web3-Car-Leaser",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benefied/Web3-Car-Leaser.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/benefied/Web3-Car-Leaser/issues"
+  },
+  "homepage": "https://github.com/benefied/Web3-Car-Leaser#readme",
+  "devDependencies": {
+    "hardhat": "^2.14.0"
+  },
+  "dependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@openzeppelin/contracts": "^4.9.0"
+  }
+}
