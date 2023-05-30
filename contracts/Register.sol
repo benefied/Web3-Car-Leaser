@@ -15,9 +15,9 @@ contract Register is CarToken{
         address carOwner;
         uint256 price;
         string details;
-        string signature;
         bool leased;
         address rentedTo;
+        string status;
     }
 
 
@@ -39,9 +39,8 @@ contract Register is CarToken{
      counter++;
  }
 
-function PutUpForRental(string memory _carName, uint256 _price, string memory _details, string memory _signature) public onlyCarLeasers{
+function PutUpForRental(string memory _carName, uint256 _price, string memory _details) public onlyCarLeasers{
      uint _id = carIdCounter;
-
      uint256 etherAmount =_price * 10 ** 18;
 
      carMinter[_id].carName = _carName;
@@ -49,24 +48,43 @@ function PutUpForRental(string memory _carName, uint256 _price, string memory _d
      carMinter[_id].price = etherAmount;
      carMinter[_id].details = _details;
      carMinter[_id].leased = false;
-     carMinter[_id].signature = _signature;
-
+     carMinter[_id].status = "available";
+    
+    bool _approved = true;
+    address _operator = carMinter[_id].rentedTo;
      safeMint(msg.sender);
+     setApprovalForAll(_operator, _approved);
      carIdCounter++;
 }
 
 function Rent(uint256 _carId) public payable{
+    require(carMinter[_carId].leased, "not available for renting");
     require(msg.value >= carMinter[_carId].price, "not enough ethers");
      carMinter[_carId].rentedTo = msg.sender;
 }
 
-function ApproveRecieve(uint256 _carId) public{
-    require(carMinter[_carId].rentedTo == msg.sender, "wasnt rented to you");
+function ApproveRent(uint256 _carId) public onlyCarLeasers{
+    //require(carMinter[_carId].rentedTo == msg.sender, "not rented to you");
+    require(carMinter[_carId].carOwner == msg.sender, "not the ownerof the car");
     carMinter[_carId].leased = true;
+    address _from = msg.sender;
+    address _to = carMinter[_carId].rentedTo;
+    uint256 _tokenId = _carId;
+    carMinter[_carId].leased = true;
+    carMinter[_carId].status = "unavailable";
+    TransferToCarOwner(_from, _to, _tokenId);
 }
 
-function TransferToCarOwner() internal{
+function TransferToCarOwner(address _from, address _to, uint256 _tokenId) internal{
+    safeTransferFrom(_from, _to, _tokenId);
+}
 
+function ApproveRecieve(uint256 _carId) public{
+    require(carMinter[_carId].rentedTo == msg.sender, "youre not the person its rented to");
+    address ownaddr = carMinter[_carId].carOwner;
+    uint256 carPrice= carMinter[_carId].price;
+
+    payable(ownaddr).transfer(carPrice);
 }
 
 function returnOwnersMessage(address _addr) public view returns(string memory){
@@ -78,8 +96,4 @@ function isAcarLeaser(address _addr) public view returns(bool){
 function amountOfCarLeasers() public view returns(uint){
     return counter;
 }
-
-
-
-
 }
