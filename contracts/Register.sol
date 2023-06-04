@@ -2,6 +2,7 @@
 
 pragma solidity^0.8.9;
 import "./RentingNftMinter.sol";
+import "hardhat/console.sol";
 
 contract Register is CarToken{
     
